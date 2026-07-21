@@ -17,6 +17,31 @@ You are the isolated manager of balloon-tollgate only. You report to the balloon
 - Your assessment: docs/INTEGRATION-ASSESSMENT.md in this worktree
 - Your status file: docs/STATUS-balloon-tollgate.md in this worktree
 
+## BOARD ACCESS — MUTEX REQUIRED
+
+All 3 ESP32-S3 boards are shared resources across balloon tracks. No
+exclusive allocation — share with mutex lock.
+
+Tool: `~/repos/balloon-fresh/tools/balloon-board-lock.py`
+
+```bash
+# Before ANY board operation (flash, test, serial read):
+BALLOON_TRACK=tollgate python3 ~/repos/balloon-fresh/tools/balloon-board-lock.py acquire board-a \
+    --purpose "flash C3 stripped build" --timeout 120
+
+# ... do board work ...
+
+# ALWAYS release when done:
+BALLOON_TRACK=tollgate python3 ~/repos/balloon-fresh/tools/balloon-board-lock.py release board-a
+```
+
+Board mapping:
+- board-a: ESP32-S3, MAC 94:a9:90:2e:37:7c, /dev/ttyACM0, TollGate-B96D80
+- board-b: ESP32-S3, MAC fc:01:2c:c5:50:50, /dev/ttyACM1, TollGate-C0E9CA
+- board-c: ESP32-S3, MAC 20:6e:f1:98:d7:08, /dev/ttyACM3, display board
+
+Skipping the lock is a bug. Concurrent flashing corrupts boards.
+
 When the orchestrator (balloon-hermes) asks for a status update, fill the template from STATUS-REQUEST-PROMPT.md and reply with the filled template only. No commentary, no cross-track opinions.
 
 ---
