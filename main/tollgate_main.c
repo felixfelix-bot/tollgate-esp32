@@ -2,9 +2,9 @@
  * Balloon TollGate — ESP32-C3 Captive Portal + Cashu
  * Stripped from full tollgate_main.c: removed display, cvm, mining,
  * wifistr, relay_selector, sync_manager, beacon_price, market,
- * stratum, faucet, touch, keyboard, local_relay, mint_health, lightning_payout.
+ * stratum, faucet, touch, keyboard, mint_health, lightning_payout.
  * Kept: WiFi AP+STA, captive_portal, dns_server, tollgate_api,
- *       identity, nostr_event, tollgate_core (cashu/session/firewall).
+ *       identity, nostr_event, local_relay, tollgate_core (cashu/session/firewall).
  */
 #include <string.h>
 #include "freertos/FreeRTOS.h"
@@ -28,6 +28,7 @@
 #include "dns_server.h"
 #include "captive_portal.h"
 #include "tollgate_api.h"
+#include "local_relay.h"
 #include "nucula_wallet.h"
 #include "lwip/prot/ip4.h"
 
@@ -222,6 +223,15 @@ static void start_services(void)
         tollgate_api_start();
     }
 
+    /* Local Nostr relay — operator decision: relay priority on C3 */
+    esp_err_t relay_ret = local_relay_init();
+    if (relay_ret == ESP_OK) {
+        local_relay_start();
+        ESP_LOGI(TAG, "Local Nostr relay started on port 4869");
+    } else {
+        ESP_LOGE(TAG, "Local relay init failed: %s — continuing without relay", esp_err_to_name(relay_ret));
+    }
+
     s_services_running = true;
     if (s_services_mutex) xSemaphoreGive(s_services_mutex);
     ESP_LOGI(TAG, "=== Balloon TollGate services started ===");
@@ -236,6 +246,7 @@ static void stop_services(void)
     }
 
     captive_portal_stop();
+    local_relay_stop();
     if (!s_ap_services_running) {
         tollgate_api_stop();
     }

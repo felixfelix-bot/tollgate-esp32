@@ -1,7 +1,9 @@
 # Balloon TollGate — ESP32-C3 partition table (4MB flash)
-# Stripped: no relay_store (Track 2 job), no PSRAM
-# Name,   Type, SubType, Offset,  Size, Flags
-nvs,      data, nvs,     0x9000,  0x6000,
-phy_init, data, phy,     0xf000,  0x1000,
-factory,  app,  factory, 0x10000, 0x300000,
-storage,  data, spiffs,  0x310000,0xF0000,
+# Includes relay_store (512KB) carved from factory app space.
+# No PSRAM. Local Nostr relay enabled per operator decision.
+# Name,       Type, SubType, Offset,   Size,     Flags
+nvs,          data, nvs,     0x9000,  0x6000,
+phy_init,     data, phy,     0xf000,  0x1000,
+factory,      app,  factory, 0x10000, 0x280000,
+storage,      data, spiffs,  0x290000,0xF0000,
+relay_store,  data, 0x99,    0x380000,0x80000,

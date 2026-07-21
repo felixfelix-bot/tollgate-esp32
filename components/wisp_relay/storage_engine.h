@@ -8,9 +8,9 @@
 #include "freertos/semphr.h"
 #include "freertos/task.h"
 
-#define STORAGE_MAX_EVENTS         5000
+#define STORAGE_MAX_EVENTS         1000
 #define STORAGE_MAX_EVENT_SIZE     8192
-#define STORAGE_INDEX_ENTRIES      5000
+#define STORAGE_INDEX_ENTRIES      1000
 #define STORAGE_PARTITION_LABEL    "relay_store"
 
 typedef enum {
