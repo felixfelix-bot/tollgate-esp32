@@ -29,30 +29,79 @@ You are part of a hierarchy. The orchestrator (balloon-hermes group) DELEGATES w
 
 These complement your anti-collapse guardrails above: you collaborate THROUGH the orchestrator, never directly with other tracks.
 
-## BOARD ACCESS — MUTEX REQUIRED
+## BOARD ACCESS — HARD MUTEX LOCK (v3)
 
-All 3 ESP32-S3 boards are shared resources across balloon tracks. No
-exclusive allocation — share with mutex lock.
+All 3 ESP32-S3 boards are shared resources across balloon tracks. Access is
+enforced by a **hard device lock** (chmod 000 on /dev/ttyACMx), not just an
+advisory flock. When another track holds a board lock, raw tool access is
+physically blocked:
 
-Tool: `~/repos/balloon-fresh/tools/balloon-board-lock.py`
+- `cat /dev/ttyACMx` → Permission denied
+- `esptool.py --port /dev/ttyACMx ...` → Permission denied
+- `idf.py -p /dev/ttyACMx flash` → Permission denied
+
+Tool: `~/repos/balloon-fresh/tools/balloon-board-lock.py` (v3)
+
+### Flash Queue — Orchestrator Approval REQUIRED
+
+**NO flashing without orchestrator (balloon-hermes) approval.** Before
+flashing ANY board, add a row to `~/repos/balloon-fresh/docs/coordination/FLASH-QUEUE.md`
+and wait for approval. This prevents firmware mismatch during coordinated tests.
+
+### Flash Procedure
 
 ```bash
-# Before ANY board operation (flash, test, serial read):
+# 1. Get orchestrator approval (add row to FLASH-QUEUE.md)
+
+# 2. Acquire hard lock (blocks other tracks at OS level):
 BALLOON_TRACK=tollgate python3 ~/repos/balloon-fresh/tools/balloon-board-lock.py acquire board-a \
-    --purpose "flash C3 stripped build" --timeout 120
+    --purpose "approved flash: C3 stripped build" --timeout 120
 
-# ... do board work ...
+# 3. Flash with idf.py (lock holder's sentinel keeps fd open → access works):
+idf.py -p /dev/ttyACM0 flash monitor
 
-# ALWAYS release when done:
+# 4. ALWAYS release when done (restores chmod 666):
 BALLOON_TRACK=tollgate python3 ~/repos/balloon-fresh/tools/balloon-board-lock.py release board-a
+
+# 5. Update FLASH-QUEUE.md status to DONE
 ```
+
+### Verify Lock Before Board Work
+
+```bash
+# Exit 0 = you hold the lock; Exit 1 = another track holds it
+BALLOON_TRACK=tollgate python3 ~/repos/balloon-fresh/tools/balloon-board-lock.py check board-a
+```
+
+### Serial Wrapper for Python Test Scripts
+
+Any Python script that opens a serial port MUST use BoardSerial instead of
+raw `serial.Serial()`:
+
+```python
+from board_serial import BoardSerial
+# NOT: ser = serial.Serial('/dev/ttyACM0', 115200)
+ser = BoardSerial('/dev/ttyACM0', 115200)
+```
+
+Tool: `~/repos/balloon-fresh/tools/board-serial.py`
 
 Board mapping:
 - board-a: ESP32-S3, MAC 94:a9:90:2e:37:7c, /dev/ttyACM0, TollGate-B96D80
 - board-b: ESP32-S3, MAC fc:01:2c:c5:50:50, /dev/ttyACM1, TollGate-C0E9CA
 - board-c: ESP32-S3, MAC 20:6e:f1:98:d7:08, /dev/ttyACM3, display board
 
-Skipping the lock is a bug. Concurrent flashing corrupts boards.
+Skipping the lock is a bug. Concurrent flashing corrupts boards. The hard
+device lock (chmod 000) ensures that even if a sub-manager bypasses the lock
+script, raw tools fail with "Permission denied".
+
+### Discovery Sync Notes (2026-07-24)
+
+Adopted independently from cross-track findings (no coordination):
+- **Hard device locking (v3)**: from balloon-hermes commit 35b292c + balloon-speed-tests commit ef60a51
+- **Flash queue protocol**: from balloon-hermes FLASH-QUEUE.md
+- **Serial wrapper mandate**: from balloon-range-tests commit 171387d
+- **FLRC byte alignment**: from balloon-range-tests commit 9b740aa — informational only, tollgate has no LR2021 radio
 
 When the orchestrator (balloon-hermes) asks for a status update, fill the template from STATUS-REQUEST-PROMPT.md and reply with the filled template only. No commentary, no cross-track opinions.
 

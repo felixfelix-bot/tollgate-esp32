@@ -18,7 +18,17 @@ Not currently building — idle, awaiting orchestrator direction on next steps.
 3. Local relay partition decision — C3 partition table has no relay_store partition. Must decide: is local Nostr relay needed for balloon, or drop it?
 4. STATUS-REQUEST-PROMPT.md template referenced in AGENTS.md does not exist in worktree.
 
+## Discovery Sync Applied (2026-07-24)
+
+Adopted independently from cross-track findings (no coordination with other tracks):
+- Hard board locking v3 (chmod 000 on /dev/ttyACMx) — adopted from balloon-hermes + balloon-speed-tests
+- Flash queue protocol — orchestrator approval required before ANY flash
+- Board-serial.py wrapper mandate — for Python test scripts
+- FLRC byte alignment findings — informational only (tollgate has no LR2021 radio)
+
+AGENTS.md updated with new procedures. No firmware changes needed.
+
 ## Next 3 Deliverables
 1. Regenerate sdkconfig for esp32c3 target (`idf.py set-target esp32c3`) and attempt clean C3 build
-2. Flash stripped C3 binary to ESP32-C3 board, verify WiFi AP + captive portal boots
+2. Flash stripped C3 binary to ESP32-C3 board, verify WiFi AP + captive portal boots (via flash queue + hard lock)
 3. Test Cashu wallet operations (receive/send) on C3 hardware against test mint
