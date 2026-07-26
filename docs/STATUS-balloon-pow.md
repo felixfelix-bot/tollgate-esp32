@@ -2,15 +2,18 @@
 
 Last updated: 2026-07-26
 
-## Current Phase: Phase 1 — Understand + Extract
+## Current Phase: Phase 1 COMPLETE — Phase 2 BLOCKED (needs S3 hardware)
 
 ### Progress
 - [x] Worktree created: ~/worktrees/balloon-pow/ (branch: balloon-pow-extraction)
 - [x] Mining source files identified (990 lines total across 5 modules)
-- [ ] Source code analysis (IN PROGRESS — delegated to worker)
-- [ ] Standalone project extraction
-- [ ] ESP32-S3 build verification
-- [ ] Hashrate estimation from code analysis
+- [x] Source code analysis + extraction
+- [x] Standalone project built: mining-standalone/ (commit 648cb18)
+- [x] ESP32-S3 build: PASS (846KB binary, 0 compiler warnings)
+- [x] Build report: docs/MINING-BUILD-REPORT.md
+- [ ] Hashrate estimation from code analysis (deferred to Phase 2 on hardware)
+- [ ] Phase 2: Flash to S3 board + benchmark (BLOCKED: D-001)
+- [ ] Phase 4: ESP32-C3 feasibility analysis
 
 ### Source Inventory
 | Module | Lines | Status |
