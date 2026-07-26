@@ -1,0 +1,39 @@
+menu "Mining Standalone Configuration"
+
+config MINE_WIFI_SSID
+    string "WiFi SSID"
+    default ""
+    help
+        SSID of the WiFi network the ESP32 will join to reach the stratum pool.
+
+config MINE_WIFI_PASS
+    string "WiFi Password"
+    default ""
+    help
+        Password for the WiFi network.
+
+config MINE_STRATUM_HOST
+    string "Stratum Pool Host"
+    default "stratum+tcp://pool.supportxmr.com"
+    help
+        Hostname or IP of the stratum pool.
+
+config MINE_STRATUM_PORT
+    int "Stratum Pool Port"
+    default 3333
+    help
+        TCP port of the stratum pool.
+
+config MINE_STRATUM_USER
+    string "Stratum Username / Wallet Address"
+    default ""
+    help
+        Username or wallet address for the stratum pool.
+
+config MINE_STRATUM_PASS
+    string "Stratum Password"
+    default "x"
+    help
+        Password for the stratum pool (usually 'x' for Bitcoin pools).
+
+endmenu
