@@ -369,12 +369,13 @@ void app_main(void)
 
     ESP_ERROR_CHECK(esp_wifi_start());
 
-    ESP_LOGI(TAG, "WiFi AP+STA started, waiting for connection...");
+    ESP_LOGI(TAG, "WiFi AP+STA started");
 
-    if (tollgate_config_get_wifi(&(wifi_config_t){0}) != ESP_OK) {
-        ESP_LOGI(TAG, "No STA network configured, starting services immediately");
-        xTaskCreate(services_start_task, "svc_start_fb", 16384, NULL, 5, NULL);
-    }
+    /* Balloon: always start services immediately. The captive portal,
+     * DNS server, and local relay must be available regardless of whether
+     * upstream STA has internet. STA will connect in background if available. */
+    ESP_LOGI(TAG, "Starting services (AP-first mode for balloon)");
+    xTaskCreate(services_start_task, "svc_start", 16384, NULL, 5, NULL);
 
     while (1) {
         vTaskDelay(pdMS_TO_TICKS(1000));
