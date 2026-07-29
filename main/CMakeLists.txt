@@ -1,12 +1,26 @@
-# Balloon TollGate — ESP32-C3 source list
-# Re-enabled: local_relay (operator decision: Nostr relay priority)
-# Stripped: display, font, cvm_server, mcp_handler, wifistr, tollgate_client,
-#           beacon_price, market, negentropy_adapter, stratum_*, sw_miner,
-#           asic_miner, faucet_client, remote_miner, touch, keyboard, wifi_setup,
-#           mint_health, tls_worker, lightning_payout, lnurl_pay, nip04,
-#           relay_selector, sync_manager
-# Kept: tollgate_main, config, dns_server, captive_portal, tollgate_api,
-#       identity, nostr_event, geohash, local_relay
+# Balloon TollGate — ESP32-C3 source list (balloon-only strip)
+# Tag v-balloon-pre-strip preserves full tollgate before this strip.
+# Display/mining/marketplace stripped from balloon build ONLY.
+# Original tollgate repo retains all components for other contexts.
+#
+# Kept (11 files — balloon-relevant):
+#   tollgate_main  — boot + init
+#   config         — config.json, nsec loading
+#   dns_server     — captive portal DNS hijack
+#   captive_portal — WiFi AP + Cashu payment portal HTML
+#   tollgate_api   — HTTP endpoints (payment, wallet, mints, usage)
+#   identity       — nsec → MAC/SSID/IP derivation
+#   nostr_event    — Nostr event signing
+#   geohash        — location encoding (balloon position)
+#   mint_health    — mint status checking (dependency of tollgate_api)
+#   local_relay    — local Nostr relay (wisp-esp32, port 4869)
+#
+# Dropped (23 files — balloon-irrelevant, preserved in repo):
+#   display, font, touch, keyboard, asic_miner, sw_miner, stratum_client,
+#   stratum_proxy, remote_miner, faucet_client, market, beacon_price,
+#   cvm_server, mcp_handler, tollgate_client, wifistr, negentropy_adapter,
+#   relay_selector, sync_manager, lightning_payout, lnurl_pay, wifi_setup,
+#   nip04, tls_worker
 idf_component_register(SRCS "tollgate_main.c"
                             "config.c"
                             "dns_server.c"
@@ -15,6 +29,7 @@ idf_component_register(SRCS "tollgate_main.c"
                             "identity.c"
                             "nostr_event.c"
                             "geohash.c"
+                            "mint_health.c"
                             "local_relay.c"
                     INCLUDE_DIRS "."
                      REQUIRES esp_wifi esp_event esp_netif nvs_flash esp_http_server
