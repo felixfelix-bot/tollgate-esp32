@@ -52,3 +52,6 @@ tests/unit/test_remote_miner
 
 # auto-generated opencode session handover (do not commit)
 HANDOVER.md
+tests/unit/test_ehash_relay
+tests/unit/test_stratum_bridge
+tests/unit/test_relay_simulation
