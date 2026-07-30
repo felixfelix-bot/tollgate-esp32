@@ -45,3 +45,30 @@ Received 2 findings from balloon-hermes:
 ### Blockers
 - D-001: ESP32-S3 boards needed for Phase 2 (benchmark on real hardware)
 - Phase 1 (analysis + extraction + build) can proceed without hardware
+
+### Cross-Track Discovery Relevance (2026-07-30)
+Received 55 findings from balloon-hermes (batch sync) + 1 earlier (nostr_store).
+Key relevance to PoW track:
+
+1. **RadioLib → lr2021_transport (ADR-020)** — Raw 20MHz SPI replaces library overhead.
+   - PoW impact: Less CPU/SPI bus time per radio cycle → more nonce-scan windows.
+   - Mining can be scheduled in SPI idle gaps more efficiently.
+
+2. **nostr_store flash-backed rewrite** — Nostr events persist to flash on ESP32-C3.
+   - PoW impact: Flash I/O contention. If mining + nostr_store coexist on C3 (Phase 4 target),
+     flash writes during share submission / block header updates will stall nonce scanning.
+   - Mitigation: mine in bursts between flash write windows, or use RAM buffer for shares.
+
+3. **ESP32-C3 store-and-forward extraction plan** — C3 confirmed as tracker node target.
+   - PoW impact: C3 will run radio + GPS + nostr_store + potentially mining.
+   - CPU budget: C3 single-core RISC-V @ 160MHz. SHA256 in software = ~10-50 KH/s estimated.
+   - Radio SPI + GPS acquisition + nostr flash writes all compete for CPU.
+   - Phase 4 feasibility: mining on C3 likely needs cooperative scheduling, not preemptive.
+
+4. **FIPS Noise IK handshake** — Noise protocol (SHA256-family crypto) tested on ESP32-S3.
+   - PoW impact: Real-world ESP32 crypto performance data exists. Can inform hashrate estimates.
+   - Noise handshake = key derivation + AEAD, not pure SHA256 hashing, but shows CPU cost baseline.
+
+5. **SPI crash fixes (5 patches)** — Radio SPI stability improved significantly.
+   - PoW impact: Stable radio = predictable idle windows for mining scheduling.
+   - Less risk of mining loop corrupting radio state via SPI bus contention.
