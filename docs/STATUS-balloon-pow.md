@@ -72,3 +72,12 @@ Key relevance to PoW track:
 5. **SPI crash fixes (5 patches)** — Radio SPI stability improved significantly.
    - PoW impact: Stable radio = predictable idle windows for mining scheduling.
    - Less risk of mining loop corrupting radio state via SPI bus contention.
+
+### Workstream 4 COMPLETE (2026-07-30)
+- L7 ehash_relay handler: packet pack/unpack, CRC16-CCITT, hop tracking, relay forwarding
+- 154 tests PASS across 3 suites:
+  - test_ehash_relay: 78 tests (round-trip, CRC, hop counting, boundaries)
+  - test_stratum_bridge: 65 tests (job creation, difficulty, nonce→share, JSON submit, relay bridge)
+  - test_relay_simulation: 11 tests (3-hop chain, 1000-iteration stress, 0 packet loss)
+- Branch: balloon-pow-e-hash pushed to github
+- Commits: 5263a99 (ehash component + tests), 0ad6ad8 (gitignore)
