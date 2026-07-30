@@ -26,7 +26,10 @@ LDFLAGS := -lmbedcrypto -lcjson -lm
 
 SECP256K1_OBJ := secp256k1.o precomputed_ecmult.o precomputed_ecmult_gen.o
 
-TESTS := test_geohash test_identity test_nostr_event test_cashu test_session test_tollgate_client test_lnurl_pay test_lightning_payout test_mcp_handler test_nip04 test_cvm_server test_beacon_price test_market test_mint_health test_mining_payment test_stratum_proxy test_session_payment_method test_tollgate_client_mining test_firewall_sandbox test_relay_selector test_relay_validator test_portal test_stratum_client test_mint_health_core test_client_core test_relay_types test_sub_manager test_deletion test_mining_api test_stratum_pow test_display test_faucet_client test_remote_miner
+TESTS := test_geohash test_identity test_nostr_event test_cashu test_session test_tollgate_client test_lnurl_pay test_lightning_payout test_mcp_handler test_nip04 test_cvm_server test_beacon_price test_market test_mint_health test_mining_payment test_stratum_proxy test_session_payment_method test_tollgate_client_mining test_firewall_sandbox test_relay_selector test_relay_validator test_portal test_stratum_client test_mint_health_core test_client_core test_relay_types test_sub_manager test_deletion test_mining_api test_stratum_pow test_display test_faucet_client test_remote_miner test_ehash_relay test_stratum_bridge test_relay_simulation
+
+EHASH_RELAY_SRC := $(REPO_ROOT)/components/ehash_relay/src/ehash_relay.c
+EHASH_RELAY_INC := $(REPO_ROOT)/components/ehash_relay/include
 
 .PHONY: all test clean $(TESTS)
 
@@ -152,6 +155,15 @@ test_faucet_client: test_faucet_client.c
 
 test_remote_miner: test_remote_miner.c
 	$(CC) $(CFLAGS) $< -o $@ $(LDFLAGS)
+
+test_ehash_relay: test_ehash_relay.c $(EHASH_RELAY_SRC)
+	$(CC) $(CFLAGS) -I $(EHASH_RELAY_INC) $^ -o $@ $(LDFLAGS)
+
+test_stratum_bridge: test_stratum_bridge.c $(EHASH_RELAY_SRC) $(TG_CORE_SRC)/tollgate_core_stratum_client.c
+	$(CC) $(CFLAGS) -I $(EHASH_RELAY_INC) $^ -o $@ $(LDFLAGS)
+
+test_relay_simulation: test_relay_simulation.c $(EHASH_RELAY_SRC)
+	$(CC) $(CFLAGS) -I $(EHASH_RELAY_INC) $^ -o $@ $(LDFLAGS)
 
 clean:
 	rm -f $(TESTS) $(SECP256K1_OBJ)
