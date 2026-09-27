@@ -33,6 +33,7 @@
 #include "sync_manager.h"
 #include "beacon_price.h"
 #include "market.h"
+#include "gps.h"
 #include "stratum_client.h"
 #include "stratum_proxy.h"
 #include "sw_miner.h"
@@ -253,6 +254,15 @@ static void start_services(void)
     if (cfg->cvm_enabled) {
         cvm_server_init();
         cvm_server_start();
+    }
+
+    if (cfg->gps_enabled) {
+        if (gps_start(cfg->gps_uart_num, cfg->gps_tx_pin, cfg->gps_rx_pin, cfg->gps_baud) == ESP_OK) {
+            ESP_LOGI(TAG, "GPS NMEA reader enabled (UART%d tx=%d rx=%d baud=%d)",
+                     cfg->gps_uart_num, cfg->gps_tx_pin, cfg->gps_rx_pin, cfg->gps_baud);
+        } else {
+            ESP_LOGE(TAG, "GPS NMEA reader failed to start");
+        }
     }
 
     if (cfg->mint_health_enabled) {

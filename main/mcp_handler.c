@@ -1,5 +1,6 @@
 #include "mcp_handler.h"
 #include "config.h"
+#include "gps.h"
 #include "nucula_wallet.h"
 #include "tollgate_core_session.h"
 #include "tollgate_core.h"
@@ -23,6 +24,7 @@ mcp_tool_t mcp_parse_tool(const char *method)
     if (strcmp(method, "set_metric") == 0) return MCP_TOOL_SET_METRIC;
     if (strcmp(method, "set_price") == 0) return MCP_TOOL_SET_PRICE;
     if (strcmp(method, "wallet_melt") == 0) return MCP_TOOL_WALLET_MELT;
+    if (strcmp(method, "get_location") == 0) return MCP_TOOL_GET_LOCATION;
     return MCP_TOOL_UNKNOWN;
 }
 
@@ -369,6 +371,34 @@ mcp_response_t mcp_handle_wallet_melt(const char *params_json)
     return resp;
 }
 
+mcp_response_t mcp_handle_get_location(void)
+{
+    mcp_response_t resp = {0};
+    const gps_fix_t *fix = gps_get_fix();
+
+    cJSON *root = cJSON_CreateObject();
+    cJSON_AddBoolToObject(root, "valid", fix->valid);
+    cJSON_AddNumberToObject(root, "latitude", fix->latitude);
+    cJSON_AddNumberToObject(root, "longitude", fix->longitude);
+    cJSON_AddStringToObject(root, "geohash", fix->geohash);
+    cJSON_AddNumberToObject(root, "altitude_m", fix->altitude_m);
+    cJSON_AddNumberToObject(root, "satellites", fix->satellites);
+    cJSON_AddNumberToObject(root, "hdop", fix->hdop);
+    cJSON_AddNumberToObject(root, "fix_quality", fix->fix_quality);
+    cJSON_AddNumberToObject(root, "speed_knots", fix->speed_knots);
+    cJSON_AddNumberToObject(root, "course_deg", fix->course_deg);
+    cJSON_AddStringToObject(root, "utc_time", fix->utc_time);
+    cJSON_AddStringToObject(root, "utc_date", fix->utc_date);
+    cJSON_AddNumberToObject(root, "updated_ms", (double)fix->updated_ms);
+
+    char *json = cJSON_PrintUnformatted(root);
+    snprintf(resp.result_json, sizeof(resp.result_json), "%s", json);
+    cJSON_free(json);
+    cJSON_Delete(root);
+    resp.success = true;
+    return resp;
+}
+
 mcp_response_t mcp_dispatch(const mcp_request_t *req)
 {
     if (!req) {
@@ -399,6 +429,8 @@ mcp_response_t mcp_dispatch(const mcp_request_t *req)
             return mcp_handle_set_price(req->params_json);
         case MCP_TOOL_WALLET_MELT:
             return mcp_handle_wallet_melt(req->params_json);
+        case MCP_TOOL_GET_LOCATION:
+            return mcp_handle_get_location();
         default:
             break;
     }

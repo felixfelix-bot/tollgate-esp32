@@ -55,6 +55,11 @@ esp_err_t tollgate_config_init(void)
     g_config.market_enabled = true;
     g_config.market_scan_interval_s = 30;
     g_config.client_auto_switch = false;
+    g_config.gps_enabled = false;
+    g_config.gps_uart_num = 1;
+    g_config.gps_tx_pin = 8;
+    g_config.gps_rx_pin = 9;
+    g_config.gps_baud = 9600;
 
     esp_vfs_spiffs_conf_t conf = {
         .base_path = "/spiffs",
@@ -323,6 +328,22 @@ esp_err_t tollgate_config_init(void)
 
     cJSON *disp_en = cJSON_GetObjectItem(root, "display_enabled");
     if (disp_en && cJSON_IsBool(disp_en)) g_config.display_enabled = cJSON_IsTrue(disp_en);
+
+    cJSON *gps = cJSON_GetObjectItem(root, "gps");
+    if (gps && cJSON_IsObject(gps)) {
+        cJSON *g_en = cJSON_GetObjectItem(gps, "enabled");
+        if (g_en && cJSON_IsBool(g_en)) g_config.gps_enabled = cJSON_IsTrue(g_en);
+        cJSON *g_uart = cJSON_GetObjectItem(gps, "uart_num");
+        if (g_uart && cJSON_IsNumber(g_uart)) g_config.gps_uart_num = g_uart->valueint;
+        cJSON *g_tx = cJSON_GetObjectItem(gps, "tx_pin");
+        if (g_tx && cJSON_IsNumber(g_tx)) g_config.gps_tx_pin = g_tx->valueint;
+        cJSON *g_rx = cJSON_GetObjectItem(gps, "rx_pin");
+        if (g_rx && cJSON_IsNumber(g_rx)) g_config.gps_rx_pin = g_rx->valueint;
+        cJSON *g_baud = cJSON_GetObjectItem(gps, "baud");
+        if (g_baud && cJSON_IsNumber(g_baud)) g_config.gps_baud = g_baud->valueint;
+    }
+    cJSON *gps_en_top = cJSON_GetObjectItem(root, "gps_enabled");
+    if (gps_en_top && cJSON_IsBool(gps_en_top)) g_config.gps_enabled = cJSON_IsTrue(gps_en_top);
 
     if (g_config.payout.mint_count == 0 && g_config.mint_url[0] != '\0') {
         strncpy(g_config.payout.mints[0].url, g_config.mint_url,

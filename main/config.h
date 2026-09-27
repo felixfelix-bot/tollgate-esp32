@@ -129,6 +129,12 @@ typedef struct {
     bool proxy_self_test;
     char faucet_url[256];
     int faucet_poll_interval_s;
+
+    bool gps_enabled;
+    int gps_uart_num;
+    int gps_tx_pin;
+    int gps_rx_pin;
+    int gps_baud;
 } tollgate_config_t;
 
 void tollgate_config_derive_unique(tollgate_config_t *cfg);

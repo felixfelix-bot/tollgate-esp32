@@ -63,6 +63,8 @@
 | Antenna | Active ceramic patch antenna via IPEX/U.FL cable |
 | Interface | UART (9600 baud default, NMEA sentences) |
 | Role | Car location via ContextVM/MCP (CTG-8) |
+| Firmware | `main/gps.c` — NMEA GGA/RMC parser; MCP tool `get_location` (see `docs/GPS-NMEA-INTEGRATION.md`) |
+| Wiring | UART1, MCU TX -> GPS RXD (GPIO8), MCU RX -> GPS TXD (GPIO9); enable via `gps.enabled` in config.json |
 
 ## IMU / Sensors
 

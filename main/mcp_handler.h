@@ -15,6 +15,7 @@ typedef enum {
     MCP_TOOL_SET_METRIC = 7,
     MCP_TOOL_SET_PRICE = 8,
     MCP_TOOL_WALLET_MELT = 9,
+    MCP_TOOL_GET_LOCATION = 10,
     MCP_TOOL_UNKNOWN = 99
 } mcp_tool_t;
 
@@ -42,6 +43,7 @@ mcp_response_t mcp_handle_set_payout(const char *params_json);
 mcp_response_t mcp_handle_set_metric(const char *params_json);
 mcp_response_t mcp_handle_set_price(const char *params_json);
 mcp_response_t mcp_handle_wallet_melt(const char *params_json);
+mcp_response_t mcp_handle_get_location(void);
 
 mcp_response_t mcp_dispatch(const mcp_request_t *req);
 

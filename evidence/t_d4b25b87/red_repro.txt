@@ -1,0 +1,6 @@
+### RED 1: new test_gps.c + new Makefile against pre-fix tree (no main/gps.c)
+make: *** No rule to make target '../../main/gps.c', needed by 'test_gps'.  Stop.
+
+### RED 2: new test_mcp_handler.c against pre-fix tree, original Makefile
+test_mcp_handler.c:4:10: fatal error: gps.h: No such file or directory
+make: *** [Makefile:85: test_mcp_handler] Error 1

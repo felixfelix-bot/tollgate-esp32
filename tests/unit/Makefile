@@ -26,7 +26,7 @@ LDFLAGS := -lmbedcrypto -lcjson -lm
 
 SECP256K1_OBJ := secp256k1.o precomputed_ecmult.o precomputed_ecmult_gen.o
 
-TESTS := test_geohash test_identity test_nostr_event test_cashu test_session test_tollgate_client test_lnurl_pay test_lightning_payout test_mcp_handler test_nip04 test_cvm_server test_beacon_price test_market test_mint_health test_mining_payment test_stratum_proxy test_session_payment_method test_tollgate_client_mining test_firewall_sandbox test_relay_selector test_relay_validator test_portal test_stratum_client test_mint_health_core test_client_core test_relay_types test_sub_manager test_deletion test_mining_api test_stratum_pow test_display test_faucet_client test_remote_miner test_ehash_relay test_stratum_bridge test_relay_simulation
+TESTS := test_geohash test_gps test_identity test_nostr_event test_cashu test_session test_tollgate_client test_lnurl_pay test_lightning_payout test_mcp_handler test_nip04 test_cvm_server test_beacon_price test_market test_mint_health test_mining_payment test_stratum_proxy test_session_payment_method test_tollgate_client_mining test_firewall_sandbox test_relay_selector test_relay_validator test_portal test_stratum_client test_mint_health_core test_client_core test_relay_types test_sub_manager test_deletion test_mining_api test_stratum_pow test_display test_faucet_client test_remote_miner test_ehash_relay test_stratum_bridge test_relay_simulation
 
 EHASH_RELAY_SRC := $(REPO_ROOT)/components/ehash_relay/src/ehash_relay.c
 EHASH_RELAY_INC := $(REPO_ROOT)/components/ehash_relay/include
@@ -58,6 +58,9 @@ $(SECP256K1_OBJ): %.o: $(SECP256K1_SRC)/src/%.c
 test_geohash: test_geohash.c $(REPO_ROOT)/main/geohash.c
 	$(CC) $(CFLAGS) $^ -o $@ $(LDFLAGS)
 
+test_gps: test_gps.c $(REPO_ROOT)/main/gps.c $(REPO_ROOT)/main/geohash.c
+	$(CC) $(CFLAGS) $^ -o $@ $(LDFLAGS)
+
 test_identity: test_identity.c $(REPO_ROOT)/main/identity.c $(SECP256K1_OBJ)
 	$(CC) $(CFLAGS) -I $(SECP256K1_PRIV_INC) $< $(REPO_ROOT)/main/identity.c $(SECP256K1_OBJ) -o $@ $(LDFLAGS)
 
@@ -81,8 +84,8 @@ test_lnurl_pay: test_lnurl_pay.c
 test_lightning_payout: test_lightning_payout.c
 	$(CC) $(CFLAGS) $< -o $@ $(LDFLAGS)
 
-test_mcp_handler: test_mcp_handler.c $(REPO_ROOT)/main/mcp_handler.c
-	$(CC) $(CFLAGS) -I $(REPO_ROOT)/main -I $(TG_CORE_INC) -I $(TG_CORE_INC)/.. $< $(REPO_ROOT)/main/mcp_handler.c -o $@ $(LDFLAGS)
+test_mcp_handler: test_mcp_handler.c $(REPO_ROOT)/main/mcp_handler.c $(REPO_ROOT)/main/gps.c $(REPO_ROOT)/main/geohash.c
+	$(CC) $(CFLAGS) -I $(REPO_ROOT)/main -I $(TG_CORE_INC) -I $(TG_CORE_INC)/.. $< $(REPO_ROOT)/main/mcp_handler.c $(REPO_ROOT)/main/gps.c $(REPO_ROOT)/main/geohash.c -o $@ $(LDFLAGS)
 
 test_nip04: test_nip04.c $(REPO_ROOT)/main/nip04.c $(SECP256K1_OBJ)
 	$(CC) $(CFLAGS) -I $(SECP256K1_PRIV_INC) $< $(REPO_ROOT)/main/nip04.c $(SECP256K1_OBJ) -o $@ $(LDFLAGS)

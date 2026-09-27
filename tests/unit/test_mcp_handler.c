@@ -1,12 +1,14 @@
 #include "test_framework.h"
 #include "mcp_handler.h"
 #include "config.h"
+#include "gps.h"
 #include "tollgate_core_session.h"
 #include "tollgate_core.h"
 #include "nucula_wallet.h"
 #include "cJSON.h"
 #include <string.h>
 #include <stdio.h>
+#include <math.h>
 
 static tollgate_config_t g_test_config;
 static uint64_t g_wallet_balance = 0;
@@ -66,6 +68,7 @@ static void test_mcp_parse_tool(void)
     ASSERT_EQ_INT(MCP_TOOL_SET_METRIC, mcp_parse_tool("set_metric"), "set_metric");
     ASSERT_EQ_INT(MCP_TOOL_SET_PRICE, mcp_parse_tool("set_price"), "set_price");
     ASSERT_EQ_INT(MCP_TOOL_WALLET_MELT, mcp_parse_tool("wallet_melt"), "wallet_melt");
+    ASSERT_EQ_INT(MCP_TOOL_GET_LOCATION, mcp_parse_tool("get_location"), "get_location");
     ASSERT_EQ_INT(MCP_TOOL_UNKNOWN, mcp_parse_tool("foo"), "unknown tool");
     ASSERT_EQ_INT(MCP_TOOL_UNKNOWN, mcp_parse_tool(NULL), "NULL tool");
 }
@@ -146,6 +149,54 @@ static void test_mcp_wallet_send(void)
     g_wallet_send_rc = -1;
     resp = mcp_handle_wallet_send("{\"amount\":100}");
     ASSERT(!resp.success, "send failure reported");
+}
+
+static void test_mcp_get_location(void)
+{
+    printf("\n=== MCP get_location ===\n");
+    gps_reset_state();
+
+    mcp_response_t resp = mcp_handle_get_location();
+    ASSERT(resp.success, "get_location succeeds without a fix");
+    cJSON *result = cJSON_Parse(resp.result_json);
+    ASSERT(result != NULL, "result is valid JSON");
+    ASSERT(!cJSON_IsTrue(cJSON_GetObjectItem(result, "valid")), "no fix -> valid=false");
+    cJSON_Delete(result);
+
+    /* Install a real NMEA fix and query again. */
+    ASSERT(gps_feed_line("$GPGGA,123519,4807.038,N,01131.000,E,1,08,0.9,545.4,M,46.9,M,,*47"),
+           "NMEA fix accepted");
+    ASSERT(gps_feed_line("$GNRMC,123519,A,4807.038,N,01131.000,E,022.4,084.4,230394,003.1,W*74"),
+           "NMEA RMC accepted");
+
+    resp = mcp_handle_get_location();
+    ASSERT(resp.success, "get_location succeeds with a fix");
+    result = cJSON_Parse(resp.result_json);
+    ASSERT(result != NULL, "result is valid JSON");
+    ASSERT(cJSON_IsTrue(cJSON_GetObjectItem(result, "valid")), "valid=true");
+    ASSERT(fabs(cJSON_GetObjectItem(result, "latitude")->valuedouble - 48.1173) < 1e-4,
+           "latitude 48.1173");
+    ASSERT(fabs(cJSON_GetObjectItem(result, "longitude")->valuedouble - 11.5167) < 1e-4,
+           "longitude 11.5167");
+    ASSERT_EQ_STR("u281wp6pt", cJSON_GetObjectItem(result, "geohash")->valuestring,
+                  "geohash for the fix");
+    ASSERT_EQ_INT(8, cJSON_GetObjectItem(result, "satellites")->valueint, "8 satellites");
+    ASSERT(fabs(cJSON_GetObjectItem(result, "altitude_m")->valuedouble - 545.4) < 1e-4,
+           "altitude 545.4");
+    cJSON_Delete(result);
+
+    /* Dispatch path. */
+    mcp_request_t req = {0};
+    req.tool = MCP_TOOL_GET_LOCATION;
+    strncpy(req.method, "get_location", sizeof(req.method) - 1);
+    mcp_response_t dresp = mcp_dispatch(&req);
+    ASSERT(dresp.success, "dispatch get_location succeeds");
+    cJSON *dresult = cJSON_Parse(dresp.result_json);
+    ASSERT(dresult != NULL, "dispatch result is valid JSON");
+    ASSERT(cJSON_IsTrue(cJSON_GetObjectItem(dresult, "valid")), "dispatch valid=true");
+    cJSON_Delete(dresult);
+
+    gps_reset_state();
 }
 
 static void test_mcp_dispatch(void)
@@ -290,6 +341,7 @@ int main(void)
     test_mcp_set_metric();
     test_mcp_set_price();
     test_mcp_wallet_melt();
+    test_mcp_get_location();
     test_mcp_dispatch();
     TEST_SUMMARY();
 }

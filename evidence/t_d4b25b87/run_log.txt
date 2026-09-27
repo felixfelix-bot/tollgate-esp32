@@ -1,0 +1,37 @@
+test_geohash                       === Results: 11 passed, 0 failed ===
+test_gps                           === Results: 73 passed, 0 failed ===
+test_identity                      BUILD-SKIPPED
+test_nostr_event                   BUILD-SKIPPED
+test_cashu                         === Results: 14 passed, 0 failed ===
+test_session                       === ALL BYTES SESSION TESTS PASSED ===
+test_tollgate_client               === Results: 30 passed, 0 failed ===
+test_lnurl_pay                     === Results: 7 passed, 0 failed ===
+test_lightning_payout              === Results: 11 passed, 0 failed ===
+test_mcp_handler                   === Results: 77 passed, 0 failed ===
+test_nip04                         BUILD-SKIPPED
+test_cvm_server                    === Results: 61 passed, 0 failed ===
+test_beacon_price                  === Results: 28 passed, 0 failed ===
+test_market                        === Results: 17 passed, 0 failed ===
+test_mint_health                   
+test_mining_payment                === Results: 23 passed, 0 failed ===
+test_stratum_proxy                 === Results: 21 passed, 0 failed ===
+test_session_payment_method        === Results: 12 passed, 0 failed ===
+test_tollgate_client_mining        === Results: 20 passed, 0 failed ===
+test_firewall_sandbox              === Results: 16 passed, 0 failed ===
+test_relay_selector                === ALL TESTS PASSED ===
+test_relay_validator               BUILD-SKIPPED
+test_portal                        === Results: 32 passed, 0 failed ===
+test_stratum_client                === Results: 53 passed, 0 failed ===
+test_mint_health_core              === Results: 24 passed, 0 failed ===
+test_client_core                   === Results: 59 passed, 0 failed ===
+test_relay_types                   === Results: 18 passed, 0 failed ===
+test_sub_manager                   === Results: 23 passed, 0 failed ===
+test_deletion                      === Results: 14 passed, 0 failed ===
+test_mining_api                    === Results: 19 passed, 0 failed ===
+test_stratum_pow                   === Results: 35 passed, 0 failed ===
+test_display                       === ALL DISPLAY TESTS PASSED ===
+test_faucet_client                 === Results: 13 passed, 0 failed ===
+test_remote_miner                  === Results: 86 passed, 0 failed ===
+test_ehash_relay                   === Results: 78 passed, 0 failed ===
+test_stratum_bridge                === Results: 65 passed, 0 failed ===
+test_relay_simulation              === Results: 11 passed, 0 failed ===

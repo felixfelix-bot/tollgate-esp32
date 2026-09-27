@@ -15,6 +15,7 @@ __pycache__/
  NAND/
 main/config.json
 tests/unit/test_geohash
+tests/unit/test_gps
 tests/unit/test_identity
 tests/unit/test_nostr_event
 tests/unit/test_cashu

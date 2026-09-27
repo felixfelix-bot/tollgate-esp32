@@ -207,9 +207,10 @@ static cJSON *build_tools_list(void)
         {"set_metric",  "Set billing metric",                     "{\"type\":\"object\",\"properties\":{\"metric\":{\"type\":\"string\",\"enum\":[\"bytes\",\"milliseconds\"]}},\"required\":[\"metric\"]}"},
         {"set_price",   "Set price per step",                     "{\"type\":\"object\",\"properties\":{\"price_per_step\":{\"type\":\"integer\",\"minimum\":1}},\"required\":[\"price_per_step\"]}"},
         {"wallet_melt", "Melt tokens for lightning payment",      "{\"type\":\"object\",\"properties\":{\"bolt11\":{\"type\":\"string\"},\"max_fee_sats\":{\"type\":\"integer\"}},\"required\":[\"bolt11\"]}"},
+        {"get_location","Get current GPS position (lat/lon/geohash)","{\"type\":\"object\",\"properties\":{},\"required\":[]}"},
     };
 
-    for (int i = 0; i < 10; i++) {
+    for (int i = 0; i < (int)(sizeof(tool_defs) / sizeof(tool_defs[0])); i++) {
         cJSON *tool = cJSON_CreateObject();
         cJSON_AddStringToObject(tool, "name", tool_defs[i][0]);
         cJSON_AddStringToObject(tool, "description", tool_defs[i][1]);
