@@ -201,6 +201,15 @@ PRIMARY: Source SIM7600G-H 4G shield (ESP32-S3 UART, PPP dial-up)
 BACKUP: GL-E750 travel router (WiFi tether to ESP32-S3 or standalone AP)
 DEPRECATED: SIM800 2G shields (keep for relay control only)
 
+STATUS (firmware side): the AT bring-up core is implemented and
+host-tested — `main/gsm_upstream.{c,h}` (190 assertions green in
+`tests/unit/test_gsm_upstream`) plus the bench harness
+`tools/gsm-validate/validate_gsm.py`. The PPPoS attach and any on-hardware
+validation remain open and are gated on sourcing the LTE shield and fitting the
+SilentLink profile: there is no LTE modem in hand and no serial device was
+present, so no AT session could be attempted. See
+docs/GSM-UPSTREAM-INTEGRATION.md.
+
 ### For CTG-9 (Vibration/FFT analysis):
 USE: MPU-9250 (best sensor in the inventory — 9-DoF, high data rate)
 BACKUP: ADXL345 (dedicated accelerometer, simpler to interface)
